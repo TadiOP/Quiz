@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="de">  <head>
+<meta charset="UTF-8">
+<title>Wash Symbol Quiz</title>
+<style>
+  body {
+    font-family: sans-serif;
+  }
+  #quiz-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  #symbol-display {
+    margin-bottom: 20px;
+  }
+  #options-container {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr); /* 4 equal columns */
+    gap: 10px;
+  }
+  .option {
+    padding: 10px;
+    border: 1px solid #ccc;
+    cursor: pointer;
+    text-align: center;
+  }
+  .correct {
+      background-color: lightgreen;
+  }
+  .incorrect {
+      background-color: lightcoral;
+  }
+  #resolution {
+    margin-top: 20px;
+    font-weight: bold;
+  }
+  </style>
+</head>
+<body>
+
+  <h1>Wash Symbol Quiz</h1>
+
+  <div id="quiz-container">
+    <div id="symbol-display">
+      <img id="current-symbol" src="" alt="Wash Symbol" width="100">
+    </div>
+    <div id="options-container">
+    </div>
+    <div id="resolution"></div>
+    <button id="next-button" onclick="nextQuestion()" disabled>Next Question</button>
+  </div>
+
+<script>
+const answers = [
+"Bügeln",
+  "Bügeln nicht heiß (bis ca. 100°C)",
+  "Waschen",
+  "Schonwäsche bei 40°C",
+  "Waschen 40°C",
+  "Chemisch reinigen",
+  "Tropfnass aufhängen",
+  "Liegend trocknen",
+  "Trocknen auf der Leine im Schatten",
+  "Trockner niedrige Temperatur",
+  "Bleiche (mit Chlor) möglich",
+  "Alle Bleichmittel erlaubt",
+  "Oxidationsmittel ohne Chlor erlaubt",
+  "Nicht bügeln",
+  "Bügeln mäßig heiß (bis ca. 150°C)",
+  "Handwäsche",
+  "Spezialwäsche bei 40°C",
+  "Waschen 60°C",
+  "Nicht chemisch reinigen",
+  "Nicht in der Sonne trocknen",
+  "Trockner geeignet",
+  "Tropfnass trocknen im Schatten",
+  "Trockner normale Temperatur",
+  "Bleiche (mit Chlor) nicht möglich",
+  "Nicht nass reinigen",
+  "Nicht bleichen",
+  "Bügeln heiß (bis ca. 200°C)",
+  "Nicht waschen",
+  "Waschen 95°C",
+  "Auf der Leine trocknen",
+  "Nicht Trockner geeignet",
+  "Liegend trocknen im Schatten"
+];
+
+const symbols = [];
+for (let i = 1; i <= 32; i++) {
+  symbols.push({
+    image: `${i}.jpeg`,
+    answer: answers[i - 1]
+  });
+}
+
+let currentQuestion = 0;
+let score = 0;
+let randomizedQuestions = []; // Array to store randomized question indices
+
+const symbolDisplay = document.getElementById("current-symbol");
+const optionsContainer = document.getElementById("options-container");
+const resolutionDisplay = document.getElementById("resolution");
+const nextButton = document.getElementById("next-button");
+
+function shuffleArray(array) { // Fisher-Yates shuffle for randomization
+  for (let i = array.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [array[i], array[j]] = [array[j], array[i]];
+  }
+}
+
+function initializeQuiz() {
+  // Create an array of indices and shuffle it
+  randomizedQuestions = Array.from(Array(symbols.length).keys());
+  shuffleArray(randomizedQuestions);
+  displayQuestion();
+}
+
+function displayQuestion() {
+  const questionIndex = randomizedQuestions[currentQuestion];
+  const question = symbols[questionIndex]; // Use shuffled index
+  symbolDisplay.src = question.image;
+
+  optionsContainer.innerHTML = "";
+
+  answers.forEach(option => {
+    const optionDiv = document.createElement("div");
+    optionDiv.className = "option";
+    optionDiv.textContent = option;
+    optionDiv.addEventListener("click", () => checkAnswerr(option));
+    optionsContainer.appendChild(optionDiv);
+  });
+}
+
+function checkAnswerr(selectedOption) {
+  const questionIndex = randomizedQuestions[currentQuestion]; // Get the shuffled index
+  const question = symbols[questionIndex]; // Use the shuffled index to get the question
+  const options = optionsContainer.querySelectorAll('.option');
+
+  options.forEach(optionDiv => {
+    if (optionDiv.textContent === question.answer) {
+      optionDiv.classList.add('correct');
+    }
+    if (optionDiv.textContent === selectedOption && selectedOption!== question.answer) {
+      optionDiv.classList.add('incorrect');
+    }
+  });
+
+  if (selectedOption === question.answer) {
+    score++;
+    resolutionDisplay.textContent = "Correct!";
+  } else {
+    resolutionDisplay.textContent = "Incorrect. The correct answer is: " + question.answer;
+  }
+
+  nextButton.disabled = false;
+  options.forEach(optionDiv => {
+    optionDiv.style.pointerEvents = 'none';
+  });
+}
+
+
+function nextQuestion() {
+  currentQuestion++;
+  if (currentQuestion < symbols.length) {
+    displayQuestion();
+    resolutionDisplay.textContent = "";
+    nextButton.disabled = true;
+    const options = optionsContainer.querySelectorAll('.option');
+    options.forEach(optionDiv => {
+      optionDiv.classList.remove('correct', 'incorrect');
+      optionDiv.style.pointerEvents = 'auto'; // Re-enable click events
+    });
+  } else {
+    resolutionDisplay.textContent = `Quiz finished! Your score: ${score} / ${symbols.length}`;
+    nextButton.style.display = 'none';
+  }
+}
+
+initializeQuiz(); // Call initializeQuiz to start the quiz
+
+</script>
+
+</body>
+</html>

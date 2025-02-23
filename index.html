@@ -9,440 +9,63 @@
   .tab-content.active {
       display: block;
     }
+    iframe {
+      width: 100%;
+      height: 500px; /* Adjust the height as needed */
+      border: none;
+    }
+    .butto {
+  background-color: #f0f0f0; /* Light gray background */
+  color: #333; /* Dark gray text */
+  border: none;
+  padding: 10px 20px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 16px;
+  margin: 4px 2px;
+  cursor: pointer;
+  border-radius: 5px; /* Slightly rounded corners */
+  transition: background-color 0.3s; /* Smooth transition for background color */
+}
+
+/* Hover effect */
+.butto:hover {
+  background-color: #ddd; /* Slightly darker gray on hover */
+}
+
+/* Active state */
+.butto.active {
+  background-color: #4CAF50; /* Green background when active */
+  color: white; /* White text when active */
+}
   </style>
 </head>
 <body>
-  <button onclick="showTab('tab1')">New Yorker Product Code Quiz</button>
-  <button onclick="showTab('tab2')">Wash Symbol Quiz</button>
+  <button class="butto" onclick="showTab('tab1')">New Yorker Product Code Quiz</button>
+  <button class="butto" onclick="showTab('tab2')">Wash Symbol Quiz</button>
 
   <div id="tab1" class="tab-content">
-    <!DOCTYPE html>
-    <html>
-    <head>
-    <title>New Yorker Product Code Quiz</title>
-    <style>
-      body {
-        font-family: sans-serif;
-      }
-      #questionArea {
-        margin-bottom: 20px;
-        border: 1px solid #ccc;
-        padding: 15px;
-        border-radius: 5px;
-      }
-      #result {
-        margin-top: 10px;
-        font-weight: bold;
-      }
-      label {
-        display: block;
-        margin-bottom: 5px;
-      }
-      input[type="text"] {
-        padding: 5px;
-        border: 1px solid #aaa;
-        border-radius: 3px;
-      }
-      button {
-        padding: 8px 12px;
-        background-color: #4CAF50;
-        color: white;
-        border: none;
-        cursor: pointer;
-        border-radius: 4px;
-      }
-      button:hover {
-        background-color: #3e8e41;
-      }
-    .correct {
-        color: green;
-      }
-    .incorrect {
-        color: red;
-      }
-      #history {
-        margin-top: 30px;
-        border-top: 1px solid #ccc;
-        padding-top: 10px;
-      }
-      #historyList {
-        list-style: none;
-        padding: 0;
-      }
-      #historyList li {
-        margin-bottom: 5px;
-      }
-      #historyList.history-correct {
-          color: green;
-      }
-        #historyList.history-incorrect {
-          color: red;
-      }
-    
-    </style>
-    </head>
-    <body>
-    
-    <h1>New Yorker Product Code Quiz</h1>
-    
-    <div id="questionArea">
-      <p><span id="itemName"></span>?</p>
-      <label for="answer">Code:</label>
-      <input type="text" id="answer" name="answer">
-      <button onclick="checkAnswer()">Check Answer</button>
-      <p id="result"></p>
-    </div>
-    
-    <button onclick="newQuestion()">Next Question</button>
-    
-    <div id="history">
-      <h2>Attempt History</h2>
-      <ul id="historyList"></ul>
-    </div>
-    
-    <script>
-    const productData = {
-        // Female div
-        "Shorts Jersey": "010",
-        "Hosen Jersey 3/4-7/8": "011",
-        "Hosen Jersey lang": "012",
-        "Kleider Jersey": "200",
-        "Kleider geweht": "201",
-        "Kleider Denim": "202",
-        "Kleider Strick": "203",
-        "Unterwäsche BHs": "250",
-        "Unterwäsche Slips": "251",
-        "Unterwäsche Anders Erläuterung: Top/Kleid/Corsage": "252",  // Added clarification
-        "Bademode Tops": "300",
-        "Bademode BHs": "301", // Corrected from "Bris" in the image
-        "Bademode Slips/Boardshorts": "302",
-        "Bademode Anders Erläuterung: Strandshorts/Röcke/Pareos": "303", // Added clarification
-        "Badeanzüge & Bikinis": "304",
-        "Handtücher": "305",
-        "Accessoires Modeschmuck": "350",
-        "Accessoires Haardekoration": "351",
-        "Accessoires Schuhe": "352", // Added SS Accessoires
-        "Accessoires Taschen": "354",
-        "Accessoires Sonnenbrillen": "355",
-        "Accessoires Gürtel": "356",
-        "Accessoires Hüte & Mützen": "357",
-        "Accessoires Strumpfwaren Erläuterung: Strümpfe, Kniestrümpfe, Stulpen": "358", //Added Clarification
-        "Accessoires Kosmetika": "359",
-        "Accessoires Andere": "360",
-    
-        // HAKA, Male, etc.  (Combining for easier lookup)
-        "Shorts gewebt": "020",
-        "Hosen 3/4-7/8": "021",
-        "Hosen lang": "022",
-        "Jeans-Shorts": "030",
-        "Jeans 3/4-7/8": "031",
-        "Jeans lang": "032",
-        "Röcke Jersey": "040",
-        "Röcke gewebt": "041",
-        "Röcke Denim": "042",
-        "Röcke gestrickt": "043",
-        "Tops Erläuterung: Tanks, Spaghetti, Bandoe, Armellos": "100", // Clarification
-        "T-Shirts, Kurzarm": "101",
-        "T-Shirts, Langarm": "102",
-        "Poloshirts": "103",
-        "Blusen-Tops Erläuterung: Tanks, Spaghetti, Bandoe, Armellos": "110",  // Clarification
-        "Blusen, Kurzarm": "111",
-        "Blusen, Langarm": "112",
-        "Hemden, Kurzarm": "120",  // Corrected category
-        "Hemden, Langarm": "121", // Corrected category
-        "Sweatshirts": "122",     // Corrected category
-        "Sweatshirt-Jacken": "123",  // Corrected category
-        "Pullover": "130",
-        "Strickjacken": "131",
-        "Mantel & Parkas": "150",
-        "Lederjacken": "151",
-        "Jacken": "152",
-        "Jeansjacken & -blazer": "153",
-        "Blazer & Sakkos": "154",
-        "Westen indoor": "155",
-        "Westen outdoor": "156",
-        "CDs": "901",
-        "Düfte": "902",
-        "Andere": "990",
-        "Diverse Oberteile": "991",
-        "Diverse Unterteile": "992",
-        "Diverse Accessoires": "993",
-        "Diverse Wäsche": "994",
-         //Zielgruppe
-        "Female div":"01",
-        "Girls":"02",
-        "Women":"03",
-        "Male div":"04",
-        "Boys":"05",
-         "Men":"06",
-        "Unisex":"07",
-    "Amisu":"01",
-    "FS Sister":"02",
-    "FSBN":"03",
-    "SMOG":"04",
-    "Censored":"05",
-    "Accessories":"06",
-        "AC":"07",
-        "Ang Christine":"08",
-        "Ann Christine Lingerie":"09",
-        "Ann Christine Acc":"10",
-        "Sport Men/SMOG Underwear/FSBN Beach":"11",
-        "New Yorker":"14",
-        "Censored Young":"15",
-    };
-    
-    
-    let currentItem;
-    let score = 0;
-    let questionCount = 0;
-    let history =; // Array to store the history
-    
-    function newQuestion() {
-        const itemNames = Object.keys(productData);
-        currentItem = itemNames[Math.floor(Math.random() * itemNames.length)];
-        document.getElementById("itemName").textContent = currentItem;
-        document.getElementById("result").textContent = ""; // Clear previous result
-        document.getElementById("answer").value = "";  // Clear input field
-        document.getElementById("answer").focus(); // Put the cursor in the input field
-    }
-    
-    function checkAnswer() {
-        questionCount++;
-        const userAnswer = document.getElementById("answer").value.trim();
-        const correctAnswer = productData[currentItem];
-        let isCorrect = false;
-    
-        if (userAnswer === correctAnswer) {
-            document.getElementById("result").textContent = "Correct!";
-            document.getElementById("result").className = "correct";
-            score++;
-            isCorrect = true;
-        } else {
-            document.getElementById("result").textContent = `Incorrect. The correct answer is ${correctAnswer}.`;
-            document.getElementById("result").className = "incorrect";
-        }
-    
-        // Add to history
-        history.push({
-            item: currentItem,
-            answer: userAnswer,
-            correctAnswer: correctAnswer,
-            isCorrect: isCorrect
-        });
-     
-        updateHistoryDisplay();
-    if(isCorrect){
-        newQuestion();
-    }
-         // Update score (you could display this on the page)
-        //  console.log(`Score: ${score} / ${questionCount}`); // No longer needed with history
-    }
-    
-    function updateHistoryDisplay() {
-        const historyList = document.getElementById("historyList");
-        historyList.innerHTML = ""; // Clear the list
-    
-        // Iterate in reverse to show newest first
-        for (let i = history.length - 1; i >= 0; i--) {
-            const entry = history[i];
-            const listItem = document.createElement("li");
-            listItem.textContent = `${entry.item}: Your answer: ${entry.answer}, Correct answer: ${entry.correctAnswer}`;
-            listItem.className = entry.isCorrect? "history-correct": "history-incorrect";
-            historyList.appendChild(listItem);
-        }
-    }
-    
-    
-    // Event listener for Enter key in the input field
-    document.getElementById("answer").addEventListener("keyup", function(event) {
-        if (event.key === "Enter") {
-            checkAnswer();
-        }
-    });
-    
-    
-    // Initial question load
-    newQuestion();
-    
-    </script>
-    
-    </body>
-    </html>
+    <iframe src="test.html"></iframe>
   </div>
 
   <div id="tab2" class="tab-content">
-    <!DOCTYPE html>
-    <html lang="de">  <head>
-    <meta charset="UTF-8">
-    <title>Wash Symbol Quiz</title>
-    <style>
-      body {
-        font-family: sans-serif;
-      }
-      #quiz-container {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-      }
-      #symbol-display {
-        margin-bottom: 20px;
-      }
-      #options-container {
-        display: grid;
-        grid-template-columns: repeat(4, 1fr); /* 4 equal columns */
-        gap: 10px;
-      }
-    .option {
-        padding: 10px;
-        border: 1px solid #ccc;
-        cursor: pointer;
-        text-align: center;
-      }
-    .correct {
-          background-color: lightgreen;
-      }
-    .incorrect {
-          background-color: lightcoral;
-      }
-      #result {
-        margin-top: 20px;
-        font-weight: bold;
-      }
-      </style>
-    </head>
-    <body>
-    
-      <h1>Wash Symbol Quiz</h1>
-    
-      <div id="quiz-container">
-        <div id="symbol-display">
-          <img id="current-symbol" src="" alt="Wash Symbol" width="100">
-        </div>
-        <div id="options-container">
-        </div>
-        <div id="result"></div>
-        <button id="next-button" onclick="nextQuestion()" disabled>Next Question</button>
-      </div>
-    
-    <script>
-    const answers = [
-    "Bügeln",
-      "Bügeln nicht heiß (bis ca. 100°C)",
-      "Waschen",
-      "Schonwäsche bei 40°C",
-      "Waschen 40°C",
-      "Chemisch reinigen",
-      "Tropfnass aufhängen",
-      "Liegend trocknen",
-      "Trocknen auf der Leine im Schatten",
-      "Trockner niedrige Temperatur",
-      "Bleiche (mit Chlor) möglich",
-      "Alle Bleichmittel erlaubt",
-      "Oxidationsmittel ohne Chlor erlaubt",
-      "Nicht bügeln",
-      "Bügeln mäßig heiß (bis ca. 150°C)",
-      "Handwäsche",
-      "Spezialwäsche bei 40°C",
-      "Waschen 60°C",
-      "Nicht chemisch reinigen",
-      "Nicht in der Sonne trocknen",
-      "Trockner geeignet",
-      "Tropfnass trocknen im Schatten",
-      "Trockner normale Temperatur",
-      "Bleiche (mit Chlor) nicht möglich",
-      "Nicht nass reinigen",
-      "Nicht bleichen",
-      "Bügeln heiß (bis ca. 200°C)",
-      "Nicht waschen",
-      "Waschen 95°C",
-      "Auf der Leine trocknen",
-      "Nicht Trockner geeignet",
-      "Liegend trocknen im Schatten"
-    ];
-    
-    const symbols =;
-    for (let i = 1; i <= 32; i++) {
-      symbols.push({
-        image: `${i}.jpeg`,
-        answer: answers[i - 1]
-      });
+    <iframe src="testWash.html"></iframe>
+  </div>
+
+  <script>
+    function showTab(tabId) {
+      // Hide all tab content
+      const tabContents = document.querySelectorAll('.tab-content');
+      tabContents.forEach(tab => tab.classList.remove('active'));
+
+      // Show the selected tab content
+      const selectedTab = document.getElementById(tabId);
+      selectedTab.classList.add('active');
     }
-    
-    let currentQuestion = 0;
-    let score = 0;
-    let randomizedQuestions =; // Array to store randomized question indices
-    
-    const symbolDisplay = document.getElementById("current-symbol");
-    const optionsContainer = document.getElementById("options-container");
-    const resultDisplay = document.getElementById("result");
-    const nextButton = document.getElementById("next-button");
-    
-    function shuffleArray(array) { // Fisher-Yates shuffle for randomization
-      for (let i = array.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [array[i], array[j]] = [array[j], array[i]];
-      }
-    }
-    
-    function initializeQuiz() {
-      // Create an array of indices and shuffle it
-      randomizedQuestions = Array.from(Array(symbols.length).keys());
-      shuffleArray(randomizedQuestions);
-      displayQuestion();
-    }
-    
-    function displayQuestion() {
-      const questionIndex = randomizedQuestions[currentQuestion];
-      const question = symbols[questionIndex]; // Use shuffled index
-      symbolDisplay.src = question.image;
-    
-      optionsContainer.innerHTML = "";
-    
-      answers.forEach(option => {
-        const optionDiv = document.createElement("div");
-        optionDiv.className = "option";
-        optionDiv.textContent = option;
-        optionDiv.addEventListener("click", () => checkAnswer(option));
-        optionsContainer.appendChild(optionDiv);
-      });
-    }
-    
-    function checkAnswer(selectedOption) {
-      const questionIndex = randomizedQuestions[currentQuestion]; // Get the shuffled index
-      const question = symbols[questionIndex]; // Use the shuffled index to get the question
-      const options = optionsContainer.querySelectorAll('.option');
-    
-      options.forEach(optionDiv => {
-        if (optionDiv.textContent === question.answer) {
-          optionDiv.classList.add('correct');
-        }
-        if (optionDiv.textContent === selectedOption && selectedOption!== question.answer) {
-          optionDiv.classList.add('incorrect');
-        }
-      });
-    
-      if (selectedOption === question.answer) {
-        score++;
-        resultDisplay.textContent = "Correct!";
-      } else {
-        resultDisplay.textContent = "Incorrect. The correct answer is: " + question.answer;
-      }
-    
-      nextButton.disabled = false;
-      options.forEach(optionDiv => {
-        optionDiv.style.pointerEvents = 'none';
-      });
-    }
-    
-    
-    function nextQuestion() {
-      currentQuestion++;
-      if (currentQuestion < symbols.length) {
-        displayQuestion();
-        resultDisplay.textContent = "";
-        nextButton.disabled = true;
-        const options = optionsContainer.querySelectorAll('.option');
-        options.forEach(optionDiv => {
-          optionDiv.classList.remove('correct', 'incorrect');
-          optionDiv.style.pointerEvents = 'auto'; // Re-enable click events
-        });
+
+    // Show the first tab by default
+    showTab('tab1');
+  </script>
+</body>
+</html>
