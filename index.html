@@ -3,6 +3,24 @@
 <head>
   <title>Combined Page</title>
   <style>
+    
+    body.dark-theme {
+  background-color: #333; /* Dark background */
+  color: #f0f0f0; /* Light text */
+}
+
+body.dark-theme button {
+  background-color: #555; /* Darker button background */
+  color: #f0f0f0; /* Light button text */
+}
+
+body.dark-theme button:hover {
+  background-color: #777; /* Slightly lighter dark background on hover */
+}
+
+body.dark-theme button.active {
+  background-color: #66bb6a; /* Slightly darker green for active state */
+}
   .tab-content {
       display: none;
     }
@@ -41,7 +59,7 @@
 }
   </style>
 </head>
-<body>
+<body class="dark-theme">
   <button class="butto" onclick="showTab('tab1')">New Yorker Product Code Quiz</button>
   <button class="butto" onclick="showTab('tab2')">Wash Symbol Quiz</button>
 
