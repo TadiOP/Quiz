@@ -7,9 +7,9 @@
     font-family: sans-serif;
   }
   body.dark-theme {
-  background-color: #333; /* Dark background */
-  color: #f0f0f0; /* Light text */
-}
+    background-color: #333;
+    color: #f0f0f0;
+  }
   #questionArea {
     margin-bottom: 20px;
     border: 1px solid #ccc;
@@ -28,6 +28,7 @@
     padding: 5px;
     border: 1px solid #aaa;
     border-radius: 3px;
+    width: 300px;
   }
   button {
     padding: 8px 12px;
@@ -58,11 +59,47 @@
   #historyList li {
     margin-bottom: 5px;
   }
-  #historyList .history-correct {
+    #historyList .history-correct{
       color: green;
+    }
+    #historyList .history-incorrect{
+        color: red;
+    }
+  /* Autocomplete styles */
+  #autocomplete-list {
+    position: absolute; /* Important for positioning */
+    border: 1px solid #ccc;
+    border-top: none; /* Remove top border */
+    z-index: 10;     /* Ensure it's above other elements */
+    background-color: #fff; /* Or your dark theme bg */
+    max-height: 200px; /* Limit height and add scroll */
+    overflow-y: auto;
+      width: 300px;
+
   }
-    #historyList .history-incorrect {
-      color: red;
+ .dark-theme  #autocomplete-list{
+      background-color: #444;
+      color: #f0f0f0;
+        border-color: #666;
+  }
+  #autocomplete-list div {
+    padding: 8px;
+    cursor: pointer;
+    border-bottom: 1px solid #eee;
+  }
+  .dark-theme #autocomplete-list div {
+        border-bottom: 1px solid #666;
+  }
+  #autocomplete-list div:hover {
+    background-color: #f0f0f0;
+  }
+    .dark-theme #autocomplete-list div:hover{
+    background-color: #555;
+
+  }
+  #autocomplete-list .autocomplete-active {
+    background-color: #4CAF50 !important; /* Highlight active item */
+    color: #ffffff;
   }
 
 </style>
@@ -72,9 +109,12 @@
 <h1>New Yorker Product Code Quiz</h1>
 
 <div id="questionArea">
-  <p><span id="itemName"></span>?</p>
-  <label for="answer">Code:</label>
-  <input type="text" id="answer" name="answer">
+  <p> <span id="itemCode"></span>?</p>
+  <label for="answer">Name:</label>
+  <div style="position: relative;">
+      <input type="text" id="answer" name="answer" autocomplete="off">
+      <div id="autocomplete-list"></div>
+  </div>
   <button onclick="checkAnswer()">Check Answer</button>
   <p id="result"></p>
 </div>
@@ -88,117 +128,133 @@
 
 <script>
 const productData = {
-    // Female div
-    "Shorts Jersey": "010",
-    "Hosen Jersey 3/4-7/8": "011",
-    "Hosen Jersey lang": "012",
-    "Kleider Jersey": "200",
-    "Kleider geweht": "201",
-    "Kleider Denim": "202",
-    "Kleider Strick": "203",
-    "Unterwäsche BHs": "250",
-    "Unterwäsche Slips": "251",
-    "Unterwäsche Anders Erläuterung: Top/Kleid/Corsage": "252",  // Added clarification
-    "Bademode Tops": "300",
-    "Bademode BHs": "301", // Corrected from "Bris" in the image
-    "Bademode Slips/Boardshorts": "302",
-    "Bademode Anders Erläuterung: Strandshorts/Röcke/Pareos": "303", // Added clarification
-    "Badeanzüge & Bikinis": "304",
-    "Handtücher": "305",
-    "Accessoires Modeschmuck": "350",
-    "Accessoires Haardekoration": "351",
-    "Accessoires Schuhe": "352", // Added SS Accessoires
-    "Accessoires Taschen": "354",
-    "Accessoires Sonnenbrillen": "355",
-    "Accessoires Gürtel": "356",
-    "Accessoires Hüte & Mützen": "357",
-    "Accessoires Strumpfwaren Erläuterung: Strümpfe, Kniestrümpfe, Stulpen": "358", //Added Clarification
-    "Accessoires Kosmetika": "359",
-    "Accessoires Andere": "360",
-
-    // HAKA, Male, etc.  (Combining for easier lookup)
-    "Shorts gewebt": "020",
-    "Hosen 3/4-7/8": "021",
-    "Hosen lang": "022",
-    "Jeans-Shorts": "030",
-    "Jeans 3/4-7/8": "031",
-    "Jeans lang": "032",
-    "Röcke Jersey": "040",
-    "Röcke gewebt": "041",
-    "Röcke Denim": "042",
-    "Röcke gestrickt": "043",
-    "Tops Erläuterung: Tanks, Spaghetti, Bandoe, Armellos": "100", // Clarification
-    "T-Shirts, Kurzarm": "101",
-    "T-Shirts, Langarm": "102",
-    "Poloshirts": "103",
-    "Blusen-Tops Erläuterung: Tanks, Spaghetti, Bandoe, Armellos": "110",  // Clarification
-    "Blusen, Kurzarm": "111",
-    "Blusen, Langarm": "112",
-    "Hemden, Kurzarm": "115",  // Corrected category
-    "Hemden, Langarm": "116", // Corrected category
-    "Sweatshirts": "120",     // Corrected category
-    "Sweatshirt-Jacken": "121",  // Corrected category
-    "Pullover": "130",
-    "Strickjacken": "131",
-    "Mantel & Parkas": "150",
-    "Lederjacken": "151",
-    "Jacken": "152",
-    "Jeansjacken & -blazer": "153",
-    "Blazer & Sakkos": "154",
-    "Westen indoor": "155",
-    "Westen outdoor": "156",
-    "CDs": "901",
-    "Düfte": "902",
-    "Andere": "990",
-    "Diverse Oberteile": "991",
-    "Diverse Unterteile": "992",
-    "Diverse Accessoires": "993",
-    "Diverse Wäsche": "994",
-     //Zielgruppe
-    "Female div":"01",
-    "Girls":"02",
-    "Women":"03",
-    "Male div":"04",
-    "Boys":"05",
-     "Men":"06",
-    "Unisex":"07",
-"Amisu":"01",
-"FS Sister":"02",
-"FSBN":"03",
-"SMOG":"04",
-"Censored":"05",
-"Accessories":"06",
-    "AC":"07",
-    "Ang Christine":"08",
-    "Ann Christine Lingerie":"09",
-    "Ann Christine Acc":"10",
-    "Sport Men/SMOG Underwear/FSBN Beach":"11",
-    "New Yorker":"14",
-    "Censored Young":"15",
+  "010": "Shorts Jerseyshorts",
+  "011": "Pants Jerseypants 3/4-7/8",
+  "012": "Pants Jerseypants full length",
+  "020": "Shorts (Woven)",
+  "021": "Pants 3/4-7/8",
+  "022": "Pants full length",
+  "030": "Jeans-Shorts",
+  "031": "Jeans 3/4-7/8",
+  "032": "Jeans full length",
+  "040": "Skirts Mini",
+  "041": "Skirts Midi",
+  "042": "Skirts Maxi",
+  "100": "Tops Basics (Tanks, Spaghetti, Bandeau)",
+  "101": "T-Shirts, short sleeve Basics",
+  "102": "T-Shirts, long sleeve Basics",
+  "103": "Poloshirts Basics",
+  "104": "Tops Fashion (Tanks, Spaghetti, Bandeau)",
+  "105": "T-Shirts, short sleeve Fashion",
+  "106": "T-Shirts, long sleeve Fashion",
+  "107": "Poloshirts Fashion",
+  "110": "Blouse-Tops (Tanks, Spaghetti, Bandeau, without sleeve)",
+  "111": "Blouses, short sleeve",
+  "112": "Blouses, long sleeve",
+  "115": "Shirts, short sleeve",
+  "116": "Shirts, long sleeve",
+  "120": "Sweatshirt",
+  "121": "Sweatshirt - Jackets",
+  "130": "Pullover",
+  "131": "Cardigan",
+  "150": "Coat/Parka",
+  "151": "Leatherette and Leather Jacket",
+  "152": "Jacket",
+  "153": "Jeansjacket/Jeansblazer",
+  "154": "Blazer/Sack Coats",
+  "155": "Waistcoats indoor",
+  "156": "Waistcoats outdoor",
+  "200": "Dresses Mini",
+  "201": "Dresses Midi",
+  "202": "Dresses Maxi",
+  "210": "Matching Set",
+  "211": "Jumpsuits long",
+  "212": "Jumpsuits short",
+  "250": "Underwear Bra Basic",
+  "251": "Underwear Brief Basic",
+  "252": "Underwear Other Basic (Top/Dress/Corsage/Susp./Nipple Cov.)",
+  "253": "Underwear Bra Fashion",
+  "254": "Underwear Brief Fashion",
+  "255": "Underwear Other Fashion (Top/Dress/Corsage/Susp./Nipple Cov.)",
+  "256": "Underwear Sleep Fashion (Sleeptop, Sleepshorts, Sleeppants, Kimono, Nightdres)",
+  "300": "Swimwear Top",
+  "301": "Swimwear Bra",
+  "302": "Swimwear Brief",
+  "303": "Swimwear Beachshorts/Skirts/Pareo",
+  "304": "Swimsuit",
+  "305": "Towels",
+  "350": "Accessories Jewelles",
+  "351": "Accessories Hair",
+  "352": "Accessories Clothes",
+  "355": "Accessories Sunglasses",
+  "356": "Accessories Belt",
+  "357": "Accessories Hats & Caps",
+  "358": "Socks, Stocking, Gauntlets",
+  "359": "Accessories Cosmetic",
+  "360": "Accessories Other",
+  "370": "Accessories Slide/Sandals",
+  "371": "Accessoires Shoes/Sneakers",
+  "372": "Accessoires Boots",
+  "380": "Accessoires Wallets/Bags Small",
+  "381": "Accessoires Bags Medium",
+  "382": "Accessoires Bags Large",
+  "901": "CD",
+  "902": "Fragrance",
+  "990": "Other",
+  "991": "Diverse Tops",
+  "992": "Diverse Bottoms",
+  "993": "Diverse Accessoires",
+  "994": "Diverse Lingerie"
 };
 
-
-let currentItem;
+let currentItemCode;
 let score = 0;
 let questionCount = 0;
-let history = []; // Array to store the history
+let history = [];
+let currentAutocomplete = -1; // Index of the currently active autocomplete item.
 
 function newQuestion() {
-    const itemNames = Object.keys(productData);
-    currentItem = itemNames[Math.floor(Math.random() * itemNames.length)];
-    document.getElementById("itemName").textContent = currentItem;
-    document.getElementById("result").textContent = ""; // Clear previous result
-    document.getElementById("answer").value = "";  // Clear input field
-    document.getElementById("answer").focus(); // Put the cursor in the input field
+    const itemCodes = Object.keys(productData);
+    currentItemCode = itemCodes[Math.floor(Math.random() * itemCodes.length)];
+    document.getElementById("itemCode").textContent = currentItemCode;
+    document.getElementById("result").textContent = "";
+    document.getElementById("answer").value = "";
+    document.getElementById("answer").focus();
+    closeAutocompleteList(); // Close any open lists
 }
 
+function levenshteinDistance(a, b) {
+    if (a.length === 0) return b.length;
+    if (b.length === 0) return a.length;
+    const matrix = [];
+    for (let i = 0; i <= b.length; i++) { matrix[i] = [i]; }
+    for (let j = 0; j <= a.length; j++) { matrix[0][j] = j; }
+    for (let i = 1; i <= b.length; i++) {
+        for (let j = 1; j <= a.length; j++) {
+            if (b.charAt(i - 1) === a.charAt(j - 1)) {
+                matrix[i][j] = matrix[i - 1][j - 1];
+            } else {
+                matrix[i][j] = Math.min(matrix[i - 1][j - 1] + 1, matrix[i][j - 1] + 1, matrix[i - 1][j] + 1);
+            }
+        }
+    }
+    return matrix[b.length][a.length];
+}
+
+function calculateSimilarity(str1, str2) {
+    const longerLength = Math.max(str1.length, str2.length);
+    const distance = levenshteinDistance(str1, str2);
+    return (longerLength - distance) / longerLength;
+}
 function checkAnswer() {
     questionCount++;
     const userAnswer = document.getElementById("answer").value.trim();
-    const correctAnswer = productData[currentItem];
+    const correctAnswer = productData[currentItemCode];
     let isCorrect = false;
+    const normalizedUserAnswer = userAnswer.toLowerCase().replace(/\s+/g, '');
+    const normalizedCorrectAnswer = correctAnswer.toLowerCase().replace(/\s+/g, '');
 
-    if (userAnswer === correctAnswer) {
+     if (normalizedUserAnswer === normalizedCorrectAnswer) {
         document.getElementById("result").textContent = "Correct!";
         document.getElementById("result").className = "correct";
         score++;
@@ -208,46 +264,135 @@ function checkAnswer() {
         document.getElementById("result").className = "incorrect";
     }
 
-    // Add to history
     history.push({
-        item: currentItem,
+        item: currentItemCode,
         answer: userAnswer,
-        correctAnswer: correctAnswer,
+        correctAnswer: correctAnswer, // Just the correct answer
         isCorrect: isCorrect
     });
- 
+
     updateHistoryDisplay();
-if(isCorrect){
-    newQuestion();
-}
-     // Update score (you could display this on the page)
-    //  console.log(`Score: ${score} / ${questionCount}`); // No longer needed with history
+    if(isCorrect){
+        newQuestion();
+    }
 }
 
 function updateHistoryDisplay() {
     const historyList = document.getElementById("historyList");
-    historyList.innerHTML = ""; // Clear the list
+    historyList.innerHTML = "";
 
-    // Iterate in reverse to show newest first
     for (let i = history.length - 1; i >= 0; i--) {
         const entry = history[i];
         const listItem = document.createElement("li");
-        listItem.textContent = `${entry.item}: Your answer: ${entry.answer}, Correct answer: ${entry.correctAnswer}`;
+        listItem.textContent = `Code ${entry.item}: Your answer: ${entry.answer}, Correct answer: ${entry.correctAnswer}`;
         listItem.className = entry.isCorrect ? "history-correct" : "history-incorrect";
         historyList.appendChild(listItem);
     }
 }
 
+// Autocomplete functionality
+function showAutocomplete(inputElement, suggestions) {
+    const list = document.getElementById("autocomplete-list");
+    list.innerHTML = ""; // Clear previous suggestions
 
-// Event listener for Enter key in the input field
-document.getElementById("answer").addEventListener("keyup", function(event) {
-    if (event.key === "Enter") {
-        checkAnswer();
+    if (suggestions.length === 0) {
+        closeAutocompleteList();
+        return;
+    }
+    suggestions.forEach((suggestion, index) => {
+    const item = document.createElement("div");
+    item.textContent = suggestion;
+    item.addEventListener("click", function() {
+      inputElement.value = suggestion;
+      closeAutocompleteList();
+      checkAnswer();
+    });
+    list.appendChild(item);
+  });
+
+
+    list.style.display = "block"; // Show the list
+}
+
+function closeAutocompleteList() {
+    const list = document.getElementById("autocomplete-list");
+    list.style.display = "none";
+    currentAutocomplete = -1; // Reset active item
+}
+
+// Event listener for input field
+document.getElementById("answer").addEventListener("input", function() {
+    const inputText = this.value.trim().toLowerCase();
+     if (inputText.length === 0) {
+        closeAutocompleteList();
+        return;
+    }
+
+    const suggestions = [];
+     for (const code in productData) {
+        const normalizedProductName = productData[code].toLowerCase().replace(/\s+/g, '');
+        const normalizedInputText = inputText.toLowerCase().replace(/\s+/g, '');
+        const similarity = calculateSimilarity(normalizedInputText, normalizedProductName);
+        if (similarity > 0.5) {
+            suggestions.push(productData[code]);
+        }
+
+    }
+    showAutocomplete(this, suggestions); // 'this' refers to the input element
+});
+
+// Event listener for keydown in the input field (for arrow keys)
+document.getElementById("answer").addEventListener("keydown", function(e) {
+    const list = document.getElementById("autocomplete-list");
+    if (!list || list.style.display === "none") return; // No list, do nothing
+
+    if (e.key === "ArrowDown") {
+        currentAutocomplete++;
+        addActive(list);
+    } else if (e.key === "ArrowUp") {
+        currentAutocomplete--;
+        addActive(list);
+    } else if (e.key === "Enter") {
+        e.preventDefault(); // Prevent form submission
+        if (currentAutocomplete > -1) {
+            if (list.children[currentAutocomplete]) { // Check if element exists
+                list.children[currentAutocomplete].click(); // Simulate click
+            }
+        } else{
+            checkAnswer();
+        }
     }
 });
 
+function addActive(list) {
+    if (!list) return;
+    removeActive(list);
+    if (currentAutocomplete >= list.children.length) currentAutocomplete = 0;
+    if (currentAutocomplete < 0) currentAutocomplete = (list.children.length - 1);
+    list.children[currentAutocomplete].classList.add("autocomplete-active");
+  }
 
-// Initial question load
+  function removeActive(list) {
+    for (let i = 0; i < list.children.length; i++) {
+      list.children[i].classList.remove("autocomplete-active");
+    }
+  }
+
+// Close the autocomplete list if the user clicks outside of it
+document.addEventListener("click", function (e) {
+    if (e.target != document.getElementById("answer") && e.target != document.getElementById("autocomplete-list")) {
+        closeAutocompleteList();
+    }
+});
+// Event listener for Enter key
+document.getElementById("answer").addEventListener("keyup", function(event) {
+    if (event.key === "Enter") {
+         if(document.getElementById("autocomplete-list").style.display ==="none"){
+             checkAnswer();
+         }
+    }
+});
+
 newQuestion();
 
 </script>
